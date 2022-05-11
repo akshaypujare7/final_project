@@ -1,20 +1,19 @@
 import logging
+import os
+from datetime import time
 from logging.config import dictConfig
 
 import flask
-from flask import request, current_app
-
+from flask import request, current_app, g
+from rfc3339 import rfc3339
+# from app.logging_config.log_formatters import RequestFormatter
 from app import config
-from app.logging_config.log_formatters import RequestFormatter
 
 log_con = flask.Blueprint('log_con', __name__)
 
 
-@log_con.before_app_request
-def before_request_logging():
-    current_app.logger.info("Before Request")
-    log = logging.getLogger("myApp")
-    log.info("My App Logger")
+def start_timer():
+    g.start = time.time()
 
 
 @log_con.after_app_request
@@ -25,25 +24,51 @@ def after_request_logging(response):
         return response
     elif request.path.startswith('/bootstrap'):
         return response
-    current_app.logger.info("After Request")
+    return response
+    # log message for each request and response that records the method, route, time, request address.
+    now = time.time()
+    duration = round(now - g.start, 2)
+    dt = datetime.datetime.fromtimestamp(now)
+    timestamp = rfc3339(dt, utc=True)
 
-    log = logging.getLogger("myApp")
-    log.info("My App Logger")
+    ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+    host = request.host.split(':', 1)[0]
+    args = dict(request.args)
+
+    log_params = [
+        ('method', request.method),
+        ('path', request.path),
+        ('status', response.status_code),
+        ('duration', duration),
+        ('time', timestamp),
+        ('ip', ip),
+        ('host', host),
+        ('params', args)
+    ]
+
+    request_id = request.headers.get('X-Request-ID')
+    if request_id:
+        log_params.append(('request_id', request_id))
+
+    parts = []
+    for name, value in log_params:
+        part = name + ': ' + str(value) + ', '
+        parts.append(part)
+    line = " ".join(parts)
     log = logging.getLogger("request")
-    log.info("requested")
+    log.info(line)
 
     return response
 
 
 @log_con.before_app_first_request
-def configure_logging():
+def setup_logs():
+    # set the name of the apps log folder to logs
+    logdir = config.Config.LOG_DIR
+    # make a directory if it doesn't exist
+    if not os.path.exists(logdir):
+        os.mkdir(logdir)
     logging.config.dictConfig(LOGGING_CONFIG)
-    log = logging.getLogger("myApp")
-    log.info("My App Logger first request")
-    log = logging.getLogger("myerrors")
-    log.info("THis broke first")
-    log = logging.getLogger("request")
-    log.info("db_dir:" + config.Config.BASE_DIR)
 
 
 LOGGING_CONFIG = {
@@ -53,11 +78,7 @@ LOGGING_CONFIG = {
         'standard': {
             'format': '%(asctime)s [%(levelname)s] %(name)s: %(message)s'
         },
-        'RequestFormatter': {
-            '()': 'app.logging_config.log_formatters.RequestFormatter',
-            'format': '[%(asctime)s] [%(process)d] %(remote_addr)s requested %(url)s\n'
-                      '%(levelname)s in %(module)s: %(message)s'
-        }
+
     },
     'handlers': {
         'default': {
@@ -69,42 +90,49 @@ LOGGING_CONFIG = {
         'file.handler': {
             'class': 'logging.handlers.RotatingFileHandler',
             'formatter': 'standard',
-            'filename': 'app/logs/flask.log',
+            'filename': os.path.join(config.Config.LOG_DIR, 'handler.log'),
             'maxBytes': 10000000,
             'backupCount': 5,
         },
         'file.handler.myapp': {
             'class': 'logging.handlers.RotatingFileHandler',
-            'formatter': 'RequestFormatter',
-            'filename': 'app/logs/myapp.log',
+            'formatter': 'standard',
+            'filename': os.path.join(config.Config.LOG_DIR, 'myapp.log'),
             'maxBytes': 10000000,
             'backupCount': 5,
         },
         'file.handler.request': {
             'class': 'logging.handlers.RotatingFileHandler',
-            'formatter': 'RequestFormatter',
-            'filename': 'app/logs/request.log',
+            'formatter': 'standard',
+            'filename': os.path.join(config.Config.LOG_DIR, 'request.log'),
             'maxBytes': 10000000,
             'backupCount': 5,
         },
         'file.handler.errors': {
             'class': 'logging.handlers.RotatingFileHandler',
             'formatter': 'standard',
-            'filename': 'app/logs/errors.log',
+            'filename': os.path.join(config.Config.LOG_DIR, 'errors.log'),
             'maxBytes': 10000000,
             'backupCount': 5,
         },
         'file.handler.sqlalchemy': {
             'class': 'logging.handlers.RotatingFileHandler',
             'formatter': 'standard',
-            'filename': 'app/logs/sqlalchemy.log',
+            'filename': os.path.join(config.Config.LOG_DIR, 'sqlalchemy.log'),
             'maxBytes': 10000000,
             'backupCount': 5,
         },
         'file.handler.werkzeug': {
             'class': 'logging.handlers.RotatingFileHandler',
             'formatter': 'standard',
-            'filename': 'app/logs/werkzeug.log',
+            'filename': os.path.join(config.Config.LOG_DIR, 'werkzeug.log'),
+            'maxBytes': 10000000,
+            'backupCount': 5,
+        },
+        'file.handler.CSV_upload': {
+            'class': 'logging.handlers.RotatingFileHandler',
+            'formatter': 'standard',
+            'filename': os.path.join(config.Config.LOG_DIR, 'CSV_upload.log'),
             'maxBytes': 10000000,
             'backupCount': 5,
         },
@@ -136,15 +164,20 @@ LOGGING_CONFIG = {
             'propagate': False
         },
         'myerrors': {  # if __name__ == '__main__'
-            'handlers': ['file.handler.errors'],
+            '   handlers': ['file.handler.errors'],
+            'level': 'DEBUG',
+            'propagate': False
+        },
+        'CSV_upload': {  # if __name__ == '__main__'
+            'handlers': ['file.handler.CSV_upload'],
             'level': 'DEBUG',
             'propagate': False
         },
         'request': {  # if __name__ == '__main__'
             'handlers': ['file.handler.request'],
-            'level': 'INFO',
+            'level': 'DEBUG',
             'propagate': False
-        },
+        }
 
     }
 }
