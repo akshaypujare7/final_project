@@ -2,7 +2,6 @@ import logging
 
 from app import db
 from app.db.models import User, Transaction
-from faker import Faker
 
 
 def test_adding_user(application):
