@@ -58,3 +58,8 @@ class security_form(FlaskForm):
     confirm = PasswordField('Repeat Password', description="Please retype your password to confirm it is correct")
 
     submit = SubmitField()
+
+
+class csv_upload(FlaskForm):
+    file = FileField()
+    submit = SubmitField()
