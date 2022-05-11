@@ -28,3 +28,21 @@
 2022-05-11 19:31:47,041 [INFO] sqlalchemy.engine.Engine: PRAGMA main.table_info("users")
 2022-05-11 19:31:47,043 [INFO] sqlalchemy.engine.Engine: [raw sql] ()
 2022-05-11 19:31:47,046 [INFO] sqlalchemy.engine.Engine: COMMIT
+2022-05-11 20:44:51,542 [INFO] sqlalchemy.engine.Engine: BEGIN (implicit)
+2022-05-11 20:44:51,544 [INFO] sqlalchemy.engine.Engine: PRAGMA main.table_info("transactions")
+2022-05-11 20:44:51,546 [INFO] sqlalchemy.engine.Engine: [raw sql] ()
+2022-05-11 20:44:51,552 [INFO] sqlalchemy.engine.Engine: PRAGMA main.table_info("users")
+2022-05-11 20:44:51,553 [INFO] sqlalchemy.engine.Engine: [raw sql] ()
+2022-05-11 20:44:51,556 [INFO] sqlalchemy.engine.Engine: COMMIT
+2022-05-11 20:44:51,577 [INFO] sqlalchemy.engine.Engine: BEGIN (implicit)
+2022-05-11 20:44:51,579 [INFO] sqlalchemy.engine.Engine: PRAGMA main.table_info("transactions")
+2022-05-11 20:44:51,580 [INFO] sqlalchemy.engine.Engine: [raw sql] ()
+2022-05-11 20:44:51,585 [INFO] sqlalchemy.engine.Engine: PRAGMA main.table_info("users")
+2022-05-11 20:44:51,586 [INFO] sqlalchemy.engine.Engine: [raw sql] ()
+2022-05-11 20:44:51,589 [INFO] sqlalchemy.engine.Engine: COMMIT
+2022-05-11 20:44:51,593 [INFO] sqlalchemy.engine.Engine: BEGIN (implicit)
+2022-05-11 20:44:51,594 [INFO] sqlalchemy.engine.Engine: PRAGMA main.table_info("transactions")
+2022-05-11 20:44:51,596 [INFO] sqlalchemy.engine.Engine: [raw sql] ()
+2022-05-11 20:44:51,600 [INFO] sqlalchemy.engine.Engine: PRAGMA main.table_info("users")
+2022-05-11 20:44:51,601 [INFO] sqlalchemy.engine.Engine: [raw sql] ()
+2022-05-11 20:44:51,604 [INFO] sqlalchemy.engine.Engine: COMMIT
