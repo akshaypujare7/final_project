@@ -1,7 +1,7 @@
 """A simple flask web app"""
 import os
 from flask import Flask
-from flask import Blueprint, render_template, abort
+from flask import render_template
 from flask_wtf.csrf import CSRFProtect
 
 import flask_login
@@ -10,6 +10,8 @@ from flask_bootstrap import Bootstrap5
 from app.cli import create_database
 from app.db import db
 from app.simple_pages import simple_pages
+from app.logging_config import log_con
+from app.transactions import transactions
 from app.auth import auth
 from app.db.models import User
 from app.context_processors import utility_text_processors

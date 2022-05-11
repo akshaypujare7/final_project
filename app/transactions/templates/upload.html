@@ -1,9 +1,10 @@
 {% extends "base.html" %}
 {% block content %}
     {% from 'bootstrap5/form.html' import render_form, render_field, render_form_row %}
-    <div id="row">
-        <h2>Dashboard</h2>
-        <p>Welcome: {{ current_user.email }}</p>
-        <p>Balance: {{ current_user.balance }}</p>
+    <div class="row">
+        <div class="mx-auto">
+            <h2>Upload Transactions</h2>
+            {{ render_form(form) }}
+        </div>
     </div>
 {% endblock %}
