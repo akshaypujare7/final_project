@@ -1,2 +1,1 @@
 """This test the homepage"""
-
